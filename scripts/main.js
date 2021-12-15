@@ -1,56 +1,108 @@
 "use strict";
 const PlayerFactory = (name, color, symbol) => { return ({ name, color, symbol }); }
 
-const cells = (() => {
+const CellHandler = (() => {
     // Private Variables
-    let cells = ["", "", "", "", "", "", "", "", ""];
-
-    // Private Functions
-    const updateCell = () => { }
+    let cellArray = ["", "", "", "", "", "", "", "", ""];
 
     // Public Functions
-    const isWinningMove = () => {
-        updateCell();
-        for (let i = 0; i < cells.length; i++) {
-
-        }
-        return false;
+    const updateCell = (index, symbol) => { 
+        cellArray[index] = symbol;
     }
 
-    return { isWinningMove }
+    const winningCells = (index, symbol) => {
+        updateCell(index, symbol);
+
+        // check columns 1, 2, 3
+        if (index == 0 || index == 3 || index == 6) {
+            if (cellArray[0] == symbol && cellArray[3] == symbol && cellArray[6] == symbol) return [0, 3, 6];
+        }
+        else if (index == 1 || index == 4 || index == 7) {
+            if (cellArray[1] == symbol && cellArray[4] == symbol && cellArray[7] == symbol) return [1, 4, 7];
+        }
+        else if (index == 2 || index == 5 || index == 8) {
+            if (cellArray[2] == symbol && cellArray[5] == symbol && cellArray[8] == symbol) return [2, 5, 8];
+        }
+
+        // check rows 1, 2, 3
+        if (index == 0 || index == 1 || index == 2) {
+            if (cellArray[0] == symbol && cellArray[1] == symbol && cellArray[2] == symbol) return [0, 1, 2];
+        }
+        else if (index == 3 || index == 4 || index == 5) {
+            if (cellArray[3] == symbol && cellArray[4] == symbol && cellArray[5] == symbol) return [3, 4, 5];
+        }
+        else if (index == 6 || index == 7 || index == 8) {
+            if (cellArray[6] == symbol && cellArray[7] == symbol && cellArray[8] == symbol) return [6, 7, 8];
+        }
+
+        // check diags L-to-R, R-to-L
+        if (index == 0 || index == 4 || index == 8) {
+            if (cellArray[0] == symbol && cellArray[4] == symbol && cellArray[8] == symbol) return [0, 4, 8];
+        }
+        else if (index == 2 || index == 4 || index == 6) {
+            if (cellArray[2] == symbol && cellArray[4] == symbol && cellArray[6] == symbol) return [2, 4, 6];
+        }
+
+        return [-1, -1, -1];
+    }
+
+    const resetCellArray = () => {
+        for (let i = 0; i < cellArray.length; i++) {
+            cellArray[i] = "";
+        }
+    }
+
+    return { winningCells, resetCellArray }
 })();
 
 const DisplayController = ((doc) => {
-    // Private Variables
-    let buttonElements = [];
-
     // Public Variables
-    const boardElement = doc.getElementById("board");
+    const elements = {
+        buttonElements: [],
+        boardElement: doc.getElementById("board"),
+        resetBtn: doc.getElementById("reset")
+    }
 
-    // Initializer
+
+    // Initializer -- immediately invoked
     const init = () => {
         // Render the board to the page
         for (let i = 0; i < 9; i++) {
             let btn = doc.createElement("button");
             btn.style.order = i + 1;
-            buttonElements.push(btn);
-            boardElement.appendChild(btn);
+            elements.buttonElements.push(btn);
+            elements.boardElement.appendChild(btn);
         }
     }
 
     // Public Functions
     const placeSymbol = (cell, currentPlayer) => {
         cell.style.color = currentPlayer.color;
-        cell.style.mouseEvents = "none";
-        cell.style.cursor = "initial";
         cell.disabled = true;
         cell.innerHTML = `<span class="symbol">${currentPlayer.symbol}</span>`;
     }
 
-    return { init, boardElement, placeSymbol }
+    const resetDisplay = () => {
+        for (let btn of elements.buttonElements) {
+            btn.textContent = "";
+            btn.disabled = false;
+            btn.style.color = null;
+            btn.style.cursor = null;
+        }
+    }
+
+    const applyWinAnimation = (set) => {
+        for (let idx of set) {
+            console.log(elements.buttonElements[idx].children)
+            elements.buttonElements[idx].children[0].classList.add("win");
+        }
+    }
+
+    return (init(), { elements, placeSymbol, resetDisplay, applyWinAnimation })
 })(document);
 
-const Game = ((cells, displayController) => {
+const Game = ((displayController, cellHandler) => {
+    // Private Variables
     const playerOne = PlayerFactory("Player One", "Red", "X");
     const playerTwo = PlayerFactory("Player Two", "Blue", "O");
     let currentPlayer = undefined;
@@ -58,29 +110,42 @@ const Game = ((cells, displayController) => {
     // Initalizer
     const init = () => {
         currentPlayer = playerOne;
-        displayController.init();
         bindUIElements();
     }
 
     // Private Functions
     const bindUIElements = () => {
         // use event propegation for putting symbols on cells
-        displayController.boardElement.addEventListener("click", (e) => { takeTurn(e) })
+        displayController.elements.boardElement.addEventListener("click", (e) => { takeTurn(e) })
+        displayController.elements.resetBtn.addEventListener("click", resetGame);
     }
 
     const takeTurn = (e) => {
-        // do nothing if player clicked the board itself
-        if (e.target.id == "board") return;
+        if (e.target.tagName != "BUTTON" || e.target.disabled == true) return;
 
         // place the symbol, check for victory, and change turns
         displayController.placeSymbol(e.target, currentPlayer);
-        if (cells.isWinningMove(e.target.style.order)) {
-            console.log("win");
+        if (isWinningMove(e.target)) {
+
         }
         else currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
     }
 
+    const isWinningMove = (cell) => {
+        let winningSet = cellHandler.winningCells(cell.style.order - 1, cell.textContent);
+        if (winningSet[0] != -1) {
+            displayController.applyWinAnimation(winningSet);
+            return true;
+        }
+        return false;
+    }
+
+    const resetGame = () => {
+        cellHandler.resetCellArray();
+        displayController.resetDisplay();
+    }
+
     return { init };
-})(cells, DisplayController);
+})(DisplayController, CellHandler);
 
 Game.init();

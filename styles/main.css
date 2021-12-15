@@ -98,4 +98,38 @@ button {
     width: min(20vw, 8rem);
 }
 
+#board > [disabled] { 
+    cursor:default;
+}
 
+#board > [disabled] > * {
+    pointer-events: none;
+}
+
+.win {
+    display: inline-block;
+    animation-name: win;
+    animation-iteration-count: infinite;
+    animation-duration: 2s;
+}
+
+/* -------------------- */
+/* Animations           */
+/* -------------------- */
+
+@keyframes win {
+    0% {
+        animation-timing-function: ease-out;
+        transform: rotate(0);
+    }
+    
+    25% {
+        animation-timing-function: ease-in-out;
+        transform: rotate(-30deg);
+    }
+
+    75% {
+        animation-timing-function: ease-in;
+        transform: rotate(30deg);
+    }
+}
