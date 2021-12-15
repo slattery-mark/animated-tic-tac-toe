@@ -2,9 +2,8 @@
 /* Properties           */
 /* -------------------- */
 :root {
-    --ff-board: {
-
-    }
+    --ff-board: sans-serif;
+    --fs-responsive: clamp(1rem, 10vw + 1rem, 6rem);
 }
 
 /* -------------------- */
@@ -61,6 +60,22 @@ button {
 .grid {
     display: grid;
     gap: var(--gap, 1rem);
+}
+
+.ff-board { font-family: var(--ff-board); }
+.fs-responsive { font-size: var(--fs-responsive); }
+
+/* visible screen reader only */
+.sr-only {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
 }
 
 /* -------------------- */
