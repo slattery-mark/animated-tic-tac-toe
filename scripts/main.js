@@ -1,75 +1,86 @@
 "use strict";
-const PlayerFactory = (name, color, symbol) => {
-    const placeSymbol = (cell) => {
-        cell.style.color = color;
-        cell.style.mouseEvents = "none";
-        cell.style.cursor = "initial";
-        cell.disabled = true;
-        cell.innerHTML = `<span class="symbol">${symbol}</span>`;
-    }
-    return { name, color, placeSymbol };
-};
+const PlayerFactory = (name, color, symbol) => { return ({ name, color, symbol }); }
 
-const GameBoard = ((doc) => {
-    const boardElement = doc.getElementById("board");
+const cells = (() => {
+    // Private Variables
     let cells = ["", "", "", "", "", "", "", "", ""];
 
-    const getCells = () => { return cells };
+    // Private Functions
+    const updateCell = () => { }
 
-    const updateCells = () => {
-        for (let i = 0; i < boardElement.children.length; i++) {
-            cells[i] = boardElement.children[i].textContent;
-        }
-    }
-
+    // Public Functions
     const isWinningMove = () => {
-        updateCells();
+        updateCell();
         for (let i = 0; i < cells.length; i++) {
-            if (cells[i] != "" || undefined) {
-                let symbol = cells[i];
-                for (let j = -4; j <= 4; j++) {
-                    if (j != 0 && cells[i + j] == symbol && cells[i + 2 * j] == symbol) return true;
-                }
-            }
+
         }
         return false;
     }
 
+    return { isWinningMove }
+})();
 
-    return { getCells, isWinningMove, boardElement }
+const DisplayController = ((doc) => {
+    // Private Variables
+    let buttonElements = [];
+
+    // Public Variables
+    const boardElement = doc.getElementById("board");
+
+    // Initializer
+    const init = () => {
+        // Render the board to the page
+        for (let i = 0; i < 9; i++) {
+            let btn = doc.createElement("button");
+            btn.style.order = i + 1;
+            buttonElements.push(btn);
+            boardElement.appendChild(btn);
+        }
+    }
+
+    // Public Functions
+    const placeSymbol = (cell, currentPlayer) => {
+        cell.style.color = currentPlayer.color;
+        cell.style.mouseEvents = "none";
+        cell.style.cursor = "initial";
+        cell.disabled = true;
+        cell.innerHTML = `<span class="symbol">${currentPlayer.symbol}</span>`;
+    }
+
+    return { init, boardElement, placeSymbol }
 })(document);
 
-const DisplayController = ((doc, gameBoard) => {
-    var gameBoard = gameBoard;
-    var playerOne = PlayerFactory("Player One", "Red", "X");
-    var playerTwo = PlayerFactory("Player Two", "Blue", "O");
-    var currentTurn = playerOne;
+const Game = ((cells, displayController) => {
+    const playerOne = PlayerFactory("Player One", "Red", "X");
+    const playerTwo = PlayerFactory("Player Two", "Blue", "O");
+    let currentPlayer = undefined;
 
-    const initialize = () => {
+    // Initalizer
+    const init = () => {
+        currentPlayer = playerOne;
+        displayController.init();
+        bindUIElements();
+    }
 
-        // Render the board to the page
-        for (let i = 0; i < gameBoard.getCells().length; i++) {
-            let btn = doc.createElement("button");
-            gameBoard.boardElement.appendChild(btn);
-        }
-
+    // Private Functions
+    const bindUIElements = () => {
         // use event propegation for putting symbols on cells
-        gameBoard.boardElement.addEventListener("click", (e) => { takeTurn(e) })
+        displayController.boardElement.addEventListener("click", (e) => { takeTurn(e) })
     }
 
     const takeTurn = (e) => {
         // do nothing if player clicked the board itself
         if (e.target.id == "board") return;
 
-        // place the symbol and change turns
-        currentTurn.placeSymbol(e.target);
-        if (gameBoard.isWinningMove(currentTurn.symbol)) {
+        // place the symbol, check for victory, and change turns
+        displayController.placeSymbol(e.target, currentPlayer);
+        if (cells.isWinningMove(e.target.style.order)) {
             console.log("win");
         }
-        else currentTurn = (currentTurn === playerOne) ? playerTwo : playerOne;
+        else currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
     }
 
-    return { initialize };
-})(document, GameBoard);
+    return { init };
+})(cells, DisplayController);
 
-DisplayController.initialize();
+Game.init();

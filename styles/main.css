@@ -2,8 +2,8 @@
 /* Properties           */
 /* -------------------- */
 :root {
-    --ff-board: sans-serif;
-    --fs-responsive: clamp(1rem, 10vw + 1rem, 6rem);
+    --ff-sans-serif: "Questial", sans-serif;
+    --fs-responsive: clamp(1rem, 12vw + 1rem, 6rem);
 }
 
 /* -------------------- */
@@ -62,7 +62,7 @@ button {
     gap: var(--gap, 1rem);
 }
 
-.ff-board { font-family: var(--ff-board); }
+.ff-sans-serif { font-family: var(--ff-sans-serif); }
 .fs-responsive { font-size: var(--fs-responsive); }
 
 /* visible screen reader only */
@@ -97,3 +97,5 @@ button {
     height: min(20vw, 8rem);
     width: min(20vw, 8rem);
 }
+
+
