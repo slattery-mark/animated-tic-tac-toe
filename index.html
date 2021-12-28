@@ -8,12 +8,13 @@
     <title>Tic Tac Toe</title>
 
     <!-- Font Awesome -->
-
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow&family=Questrial&display=swap" rel="stylesheet">
 
 
     <!-- Custom Styles -->
@@ -24,10 +25,26 @@
 </head>
 
 <body>
-    <main class="grid">  
-        <div id="board" class="grid ff-sans-serif fs-responsive"></div>
+    <header class="banner">
+            <div></div>
+            <div></div>
+    </header>
+
+
+    <main>
+        <div class="board"></div>
     </main>
-    <button id="restart">Restart</button>
+
+    <footer>
+        <button class="play-again">Play Again</button>
+        <aside>
+            <ul class="horizontal-list">
+                <li><button><i class="fab fa-linkedin-in"></i></button></li>
+                <li><button><i class="fab fa-github"></i></button></li>
+                <li><button><i class="fas fa-external-link-alt"></button></i></li>
+            </ul>
+        </aside>
+    </footer>
 </body>
 
 </html>

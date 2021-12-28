@@ -1,38 +1,18 @@
 /* -------------------- */
-/* Properties           */
+/* Properties/Resets    */
 /* -------------------- */
 :root {
-    --ff-sans-serif: "Questial", sans-serif;
-    --fs-responsive: clamp(1rem, 12vw + 1rem, 6rem);
-}
+    --ff-board: Arial, Helvetica, sans-serif;;
+    --ff-site: "Barlow", sans-serif;;
 
-/* -------------------- */
-/* Reset/setup          */
-/* -------------------- */
-/* Reset margins */
-body,
-h1,
-h2,
-h3,
-h4,
-h5,
-p,
-figure,
-picture {
-    margin: 0;
-}
+    --fs-board: clamp(1rem, min(11vw, 11vh) + 1rem, 6rem);
+    --fs-banner: 1.25rem;
 
-/* Set up the body as a grid with header and main */
-body {
-    display: grid;
-    grid-template-rows: 1fr min-content;
-    line-height: 1.5;
-    min-height: 100vh;
-    overflow: hidden;
-}
+    --foreground-clr: 0 0% 100%;
+    --background-clr: 197 11% 85%;
 
-button {
-    font: inherit;
+    --board-border-size: 12px;
+    --board-border: var(--board-border-size) solid hsl(var(--background-clr) );
 }
 
 /* Remove animations for people who've turned them off (accessibility) */
@@ -47,89 +27,115 @@ button {
     }
 }
 
-
-/* -------------------- */
-/* Utility classes      */
-/* -------------------- */
-
-.flex {
-    display: flex;
-    gap: var(--gap, 1rem);
-}
-
-.grid {
+body {
     display: grid;
-    gap: var(--gap, 1rem);
-}
-
-.ff-sans-serif { font-family: var(--ff-sans-serif); }
-.fs-responsive { font-size: var(--fs-responsive); }
-
-/* visible screen reader only */
-.sr-only {
-    border: 0;
-    clip: rect(0, 0, 0, 0);
-    height: 1px;
-    margin: -1px;
+    grid-template-rows: min-content 1fr min-content;
+    height: 100vh;
+    margin: 0;
     overflow: hidden;
-    padding: 0;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
 }
 
-/* -------------------- */
-/* Components           */
-/* -------------------- */
-
-#board {
-    --gap: .5rem;
-    align-self: center;
-    background-color: black;
-    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-    justify-self: center;
-}
-
-#board > * { 
-    background-color: white;
+button {
+    background: none;
     border: none;
+    font: inherit;
+}
+
+main {
+    align-items: center;
+    background-color: hsl( var(--background-clr) );
+    display: flex;
+    justify-content: center;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* -------------------- */
+/* Structure            */
+/* -------------------- */
+
+.board {
+    aspect-ratio: 1;
+    border-radius: 25px;
+    display: grid;
+    gap: var(--board-border-size);
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    height: min(min(70vw, 70vh), 500px);
+    position: absolute;
+    z-index: 2;
+}
+
+.board__cell {
     cursor: pointer;
-    height: min(20vw, 8rem);
-    width: min(20vw, 8rem);
+    display: inline-block;
 }
 
-#board > [disabled] { 
-    cursor:default;
-}
-
-#board > [disabled] > * {
+.board__cell[disabled] {
+    cursor: initial;
     pointer-events: none;
 }
 
-.win {
+.board__symbol {
     display: inline-block;
-    animation-name: win;
-    animation-iteration-count: infinite;
-    animation-duration: 2s;
+}
+
+.horizontal-list {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+/* -------------------- */
+/* Style                */
+/* -------------------- */
+
+/* tic tac toe board borders */
+.board {
+    background-color: hsl( var(--foreground-clr) );
+    font-family: var(--ff-board);
+    font-size: var(--fs-board);
+    font-weight: bold;
+}
+
+.board__cell {
+    outline: var(--board-border);
+}
+
+.horizontal-list {
+    list-style-type: none;
 }
 
 /* -------------------- */
 /* Animations           */
 /* -------------------- */
 
-@keyframes win {
+.expand {
+    animation: expand 1s ease-in-out 0s infinite normal;
+}
+
+.retract {
+    animation: retract 1.5s ease-in-out 0s 1 normal forwards;
+}
+
+@keyframes expand {
     0% {
-        animation-timing-function: ease-out;
-        transform: rotate(0);
+        transform: scale(1);
     }
     
-    25% {
-        animation-timing-function: ease-in-out;
-        transform: rotate(-30deg);
+    50% {
+        transform: scale(1.25);
     }
+}
 
-    75% {
-        animation-timing-function: ease-in;
-        transform: rotate(30deg);
+@keyframes retract {
+    0% {
+        transform: scale(1);
+    }
+    
+    100% {
+        transform: scale(.75);
     }
 }

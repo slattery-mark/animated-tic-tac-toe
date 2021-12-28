@@ -19,52 +19,34 @@ const CellHandler = (() => {
     return { cellArray, updateCell, resetCellArray }
 })();
 
-const Customizer = (() => {
-    const changePlayerDisplay = (player, name, color, symbol) => {
-        player.style.name = name;
-        player.style.color = color;
-        player.style.symbol = symbol;
-    }
-
-    const changeBackgroundClr = (background, color) => {
-        background.style.backgroundColor = color;
-    }
-
-    const changeBoardClr = (board, color) => {
-        board.style.backgroundColor = color;
-    }
-
-    return { changePlayerDisplay, changeBackgroundClr, changeBoardClr };
-})();
-
-const DisplayController = ((doc, customize) => {
+const DisplayController = ((Document) => {
     // private variables
-    const customizer = customize;
+    const document = Document;
 
     // Public Variables
     const elements = {
         buttonElements: [],
-        boardElement: doc.getElementById("board"),
-        restartBtn: doc.getElementById("restart"),
-        body: doc.querySelector("body")
+        boardElement: document.querySelector(".board"),
+        playAgainBtn: document.querySelector(".play-again"),
+        body: document.querySelector("body")
     }
 
     // Initializer -- immediately invoked
     const init = () => {
         // Render the board to the page
         for (let i = 0; i < 9; i++) {
-            let btn = doc.createElement("button");
+            let btn = document.createElement("button");
+            btn.classList.add("board__cell")
             btn.style.order = i + 1;
             elements.buttonElements.push(btn);
             elements.boardElement.appendChild(btn);
         }
     }
 
-    // Public Functions
     const placeSymbol = (cell, currentPlayer) => {
         cell.style.color = currentPlayer.color;
         cell.disabled = true;
-        cell.innerHTML = `<span class="symbol">${currentPlayer.symbol}</span>`;
+        cell.innerHTML = `<span class="board__symbol">${currentPlayer.symbol}</span>`;
     }
 
     const resetDisplay = () => {
@@ -76,28 +58,32 @@ const DisplayController = ((doc, customize) => {
         }
     }
 
-    const customizeGame = (e) => {
-        customizer.changePlayerDisplay(playerOne, playerOneName, playerOneClr);
-        customizer.changePlayerDisplay(playerTwo, playerTwoName, playerTwoClr);
-        customizer.changeBoardClr(elements.board, boardColor);
-        customizer.changeBackgroundClr(elements.body, backgroundColor);
-    }
+    const applyAnimations = (set) => {
+        let cells = elements.buttonElements;
+        
+        for (let i = 0; i < cells.length; i++) {
+            let symbol = cells[i].firstChild;
 
-    const applyWinAnimation = (set) => {
-        for (let idx of set) {
-            elements.buttonElements[idx].children[0].classList.add("win");
+            if (i == set[0] || i == set[1] || i == set[2]) {
+                let wrapper = document.createElement("div");
+                cells[i].appendChild(wrapper);
+                wrapper.appendChild(symbol);
+                wrapper.classList.add("expand");
+                symbol.classList.add("waver");
+            }
+            else if (symbol) symbol.classList.add("retract");
         }
     }
 
-    return (init(), { customizer, elements, placeSymbol, resetDisplay, applyWinAnimation })
-})(document, Customizer);
+    return (init(), { elements, placeSymbol, resetDisplay, applyAnimations })
+})(document);
 
 const Game = (() => {
     // Private Variables
     const cellHandler = CellHandler;
     const displayController = DisplayController;
-    const playerOne = PlayerFactory("Player One", "Red", "X");
-    const playerTwo = PlayerFactory("Player Two", "Blue", "O");
+    const playerOne = PlayerFactory("Player One", "rgb(234, 82, 111)", "X");
+    const playerTwo = PlayerFactory("Player Two", "rgb(58, 166, 241)", "O");
     let currentPlayer = undefined;
 
     // Initalizer
@@ -110,16 +96,17 @@ const Game = (() => {
     const bindUIElements = () => {
         // use event propegation for putting symbols on cells
         displayController.elements.boardElement.addEventListener("click", (e) => { takeTurn(e) })
-        displayController.elements.restartBtn.addEventListener("click", restartGame);
+        displayController.elements.playAgainBtn.addEventListener("click", setupNewGame);
     }
 
-
     const takeTurn = (e) => {
+        // disable the clicked cell on the board
         if (e.target.tagName != "BUTTON" || e.target.disabled == true) return;
 
         // place the symbol and change turns
         displayController.placeSymbol(e.target, currentPlayer);
         currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+
         if (isWinningMove(e.target.style.order - 1, currentPlayer.symbol)) {
             // do something..
         }
@@ -127,7 +114,7 @@ const Game = (() => {
 
     const isWinningMove = (index, symbol) => {
         cellHandler.updateCell(index, symbol);
-        
+
         let winningSet = undefined;
         const cells = cellHandler.cellArray;
 
@@ -139,7 +126,7 @@ const Game = (() => {
         }
         else if (index == 1 || index == 4 || index == 7) {
             if (cells[1] == symbol && cells[4] == symbol && cells[7] == symbol) {
-                winningSet[1, 4, 7];
+                winningSet = [1, 4, 7];
             }
         }
         else if (index == 2 || index == 5 || index == 8) {
@@ -179,14 +166,13 @@ const Game = (() => {
         }
 
         if (winningSet) {
-            displayController.applyWinAnimation(winningSet);
+            displayController.applyAnimations(winningSet);
             return true;
-            
         }
         return false;
     }
 
-    const restartGame = () => {
+    const setupNewGame = () => {
         cellHandler.resetCellArray();
         displayController.resetDisplay();
     }
