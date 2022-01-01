@@ -2,17 +2,20 @@
 /* Properties/Resets    */
 /* -------------------- */
 :root {
-    --ff-board: Arial, Helvetica, sans-serif;;
-    --ff-site: "Barlow", sans-serif;;
+    --ff-site: "Barlow", sans-serif;
 
-    --fs-board: clamp(1rem, min(11vw, 11vh) + 1rem, 6rem);
+    --fs-board: clamp(1rem, 11vmin + 1rem, 5.5rem);
     --fs-banner: 1.25rem;
 
-    --foreground-clr: 0 0% 100%;
-    --background-clr: 197 11% 85%;
+    --secondary-clr: 0 0% 100%;
+    --primary-clr: 227 16% 85%;
+    --accent-clr: 211 26% 63%;
 
-    --board-border-size: 12px;
-    --board-border: var(--board-border-size) solid hsl(var(--background-clr) );
+    --board-border-radius: 15px;
+    --board-border-size: min(3vmin, 18px);
+    --board-border: var(--board-border-size) solid hsl(var(--primary-clr) );
+
+    --total-anim-duration: 1s;
 }
 
 /* Remove animations for people who've turned them off (accessibility) */
@@ -29,6 +32,7 @@
 
 body {
     display: grid;
+    font-family: var(--ff-site);
     grid-template-rows: min-content 1fr min-content;
     height: 100vh;
     margin: 0;
@@ -43,8 +47,10 @@ button {
 
 main {
     align-items: center;
-    background-color: hsl( var(--background-clr) );
+    background-color: hsl( var(--primary-clr) );
     display: flex;
+    flex-direction: column;
+    gap: 5rem;
     justify-content: center;
 }
 
@@ -57,20 +63,28 @@ ul {
 /* Structure            */
 /* -------------------- */
 
+.banner {
+    display: flex;
+    align-items: center;
+    height: 3rem;
+}
+
 .board {
     aspect-ratio: 1;
-    border-radius: 25px;
+    border-radius: var(--board-border-radius);
     display: grid;
     gap: var(--board-border-size);
     grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-    height: min(min(70vw, 70vh), 500px);
-    position: absolute;
-    z-index: 2;
+    height: min(70vmin, 500px);
 }
 
 .board__cell {
     cursor: pointer;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15%;
+    overflow: hidden;
 }
 
 .board__cell[disabled] {
@@ -79,7 +93,8 @@ ul {
 }
 
 .board__symbol {
-    display: inline-block;
+    height: auto;
+    width: 80%;
 }
 
 .horizontal-list {
@@ -88,13 +103,27 @@ ul {
     gap: 2rem;
 }
 
+.btn {
+    border-radius: 1.5rem;
+    height: min-content;
+    padding: 20px;
+    font-weight: bold;
+    letter-spacing: .15rem;
+    width: min-content;
+}
+
 /* -------------------- */
 /* Style                */
 /* -------------------- */
 
+.banner {
+    background-color: hsl( var(--accent-clr) );
+    color: hsl( var(--secondary-clr) );
+}
+
 /* tic tac toe board borders */
 .board {
-    background-color: hsl( var(--foreground-clr) );
+    background-color: hsl( var(--secondary-clr) );
     font-family: var(--ff-board);
     font-size: var(--fs-board);
     font-weight: bold;
@@ -108,16 +137,34 @@ ul {
     list-style-type: none;
 }
 
+.btn--text-link {
+    background-color: hsl( var(--accent-clr) );
+    color: hsl( var(--secondary-clr) );
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
 /* -------------------- */
 /* Animations           */
 /* -------------------- */
 
 .expand {
-    animation: expand 1s ease-in-out 0s infinite normal;
+    animation: expand 1s ease-in-out var(--total-anim-duration) infinite normal;
 }
 
 .retract {
-    animation: retract 1.5s ease-in-out 0s 1 normal forwards;
+    animation: retract 1.5s ease-in-out var(--total-anim-duration) 1 normal forwards;
+}
+
+.drawn {
+    --piece-anim-duration: calc(var(--total-anim-duration) / var(--shape-pieces));
+    stroke-dasharray: var(--shape-length);
+    stroke-dashoffset: var(--shape-length);
+    animation-name: draw;
+    animation-duration: var(--piece-anim-duration);
+    animation-timing-function: ease-in-out;
+    animation-delay: calc(var(--delay-multiplier) * var(--piece-anim-duration));
+    animation-fill-mode: forwards;
 }
 
 @keyframes expand {
@@ -137,5 +184,15 @@ ul {
     
     100% {
         transform: scale(.75);
+    }
+}
+
+@keyframes draw {
+    from {
+        stroke-dashoffset: var(--shape-length);
+    }
+
+    to {
+        stroke-dashoffset: 0;
     }
 }

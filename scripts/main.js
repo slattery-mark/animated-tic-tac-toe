@@ -1,5 +1,6 @@
 "use strict";
-const PlayerFactory = (name, color, symbol) => { return ({ name, color, symbol }); }
+
+const PlayerFactory = (name, symbol) => { return ({ name, symbol }); }
 
 const CellHandler = (() => {
     // public Variables
@@ -21,21 +22,21 @@ const CellHandler = (() => {
 
 const DisplayController = ((Document) => {
     // private variables
-    const document = Document;
+    const doc = Document;
 
     // Public Variables
     const elements = {
         buttonElements: [],
-        boardElement: document.querySelector(".board"),
-        playAgainBtn: document.querySelector(".play-again"),
-        body: document.querySelector("body")
+        boardElement: doc.querySelector(".board"),
+        playAgainBtn: doc.querySelector(".play-again"),
+        body: doc.querySelector("body")
     }
 
     // Initializer -- immediately invoked
     const init = () => {
         // Render the board to the page
         for (let i = 0; i < 9; i++) {
-            let btn = document.createElement("button");
+            let btn = doc.createElement("button");
             btn.classList.add("board__cell")
             btn.style.order = i + 1;
             elements.buttonElements.push(btn);
@@ -44,9 +45,8 @@ const DisplayController = ((Document) => {
     }
 
     const placeSymbol = (cell, currentPlayer) => {
-        cell.style.color = currentPlayer.color;
-        cell.disabled = true;
-        cell.innerHTML = `<span class="board__symbol">${currentPlayer.symbol}</span>`;
+        let symbol = currentPlayer.symbol();
+        cell.appendChild(symbol);
     }
 
     const resetDisplay = () => {
@@ -60,35 +60,35 @@ const DisplayController = ((Document) => {
 
     const applyAnimations = (set) => {
         let cells = elements.buttonElements;
-        
+
         for (let i = 0; i < cells.length; i++) {
             let symbol = cells[i].firstChild;
 
-            if (i == set[0] || i == set[1] || i == set[2]) {
-                let wrapper = document.createElement("div");
-                cells[i].appendChild(wrapper);
-                wrapper.appendChild(symbol);
-                wrapper.classList.add("expand");
-                symbol.classList.add("waver");
-            }
+            if (i == set[0] || i == set[1] || i == set[2]) symbol.classList.add("expand");
             else if (symbol) symbol.classList.add("retract");
         }
     }
 
-    return (init(), { elements, placeSymbol, resetDisplay, applyAnimations })
+    return { init, elements, placeSymbol, resetDisplay, applyAnimations };
 })(document);
 
-const Game = (() => {
+const Game = ((CellHandler, DisplayController, AssetCreator) => {
     // Private Variables
     const cellHandler = CellHandler;
     const displayController = DisplayController;
-    const playerOne = PlayerFactory("Player One", "rgb(234, 82, 111)", "X");
-    const playerTwo = PlayerFactory("Player Two", "rgb(58, 166, 241)", "O");
+    const assetCreator = AssetCreator;
+    let playerOne = null;
+    let playerTwo = null;
     let currentPlayer = undefined;
 
     // Initalizer
     const init = () => {
+        displayController.init();
+
+        playerOne = PlayerFactory("Player One", assetCreator.createXSymbol);
+        playerTwo = PlayerFactory("Player Two", assetCreator.createOSymbol);
         currentPlayer = playerOne;
+        
         bindUIElements();
     }
 
@@ -105,6 +105,7 @@ const Game = (() => {
 
         // place the symbol and change turns
         displayController.placeSymbol(e.target, currentPlayer);
+
         currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
 
         if (isWinningMove(e.target.style.order - 1, currentPlayer.symbol)) {
@@ -179,6 +180,6 @@ const Game = (() => {
 
     return { init };
 
-})();
+})(CellHandler, DisplayController, AssetCreator);
 
 Game.init();
