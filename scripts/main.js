@@ -1,28 +1,42 @@
 "use strict";
 
-const PlayerFactory = (name, symbol) => { return ({ name, symbol }); }
-
-const CellHandler = (() => {
-    // public Variables
-    let cellArray = ["", "", "", "", "", "", "", "", ""];
+const ScoreKeeper = (() => {
+    // Private Variables
+    let rows = [0, 0, 0];
+    let cols = [0, 0, 0];
+    let diags = [0, 0];
+    let playerXScore = 0;
+    let playerOScore = 0;
 
     // Public Functions
-    const updateCell = (index, symbol) => {
-        cellArray[index] = symbol;
+    const updateBoardScores = (row, col, currentPlayer) => {
+        rows[row] += currentPlayer;
+        cols[col] += currentPlayer;
+        if (row === col) diags[0] += currentPlayer;
+        if (row + col == 2) diags[1] += currentPlayer;
     }
 
-    const resetCellArray = () => {
-        for (let i = 0; i < cellArray.length; i++) {
-            cellArray[i] = "";
-        }
+    const resetBoardScores = () => {
+        rows = [0, 0, 0];
+        cols = [0, 0, 0];
+        diags = [0, 0];
     }
 
-    return { cellArray, updateCell, resetCellArray }
+    const getBoardScores = () => {
+        return [rows, cols, diags];
+    }
+
+    const incPlayerScore = (player) => {
+        (player == 1) ? playerXScore++ : playerOScore++;
+    }
+
+    return { updateBoardScores, resetBoardScores, getBoardScores, incPlayerScore }
 })();
 
-const DisplayController = ((Document) => {
+const DisplayController = ((Document, AssetCreator) => {
     // private variables
     const doc = Document;
+    const assetCreator = AssetCreator;
 
     // Public Variables
     const elements = {
@@ -34,61 +48,56 @@ const DisplayController = ((Document) => {
 
     // Initializer -- immediately invoked
     const init = () => {
-        // Render the board to the page
-        for (let i = 0; i < 9; i++) {
-            let btn = doc.createElement("button");
-            btn.classList.add("board__cell")
-            btn.style.order = i + 1;
-            elements.buttonElements.push(btn);
-            elements.boardElement.appendChild(btn);
+        // Create the board
+        let k = 0;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                
+                let btn = doc.createElement("button");
+                btn.classList.add("board__cell")
+                btn.dataset.row = i;
+                btn.dataset.col = j;
+                btn.dataset.idx = k;
+
+                k++;
+
+                elements.buttonElements.push(btn);
+                elements.boardElement.appendChild(btn);
+            }
         }
     }
 
-    const placeSymbol = (cell, currentPlayer) => {
-        let symbol = currentPlayer.symbol();
-        cell.appendChild(symbol);
+    const renderSymbol = (idx, currentPlayer) => {
+        let symbol = (currentPlayer == 1) ? assetCreator.createXSymbol() : assetCreator.createOSymbol();
+        elements.buttonElements[idx].appendChild(symbol);
     }
 
     const resetDisplay = () => {
         for (let btn of elements.buttonElements) {
             btn.textContent = "";
             btn.disabled = false;
-            btn.style.color = null;
-            btn.style.cursor = null;
+
+            // remove animations
+            btn.classList.remove("contract");
         }
     }
 
-    const applyAnimations = (set) => {
-        let cells = elements.buttonElements;
+    const applyAnimations = () => {
 
-        for (let i = 0; i < cells.length; i++) {
-            let symbol = cells[i].firstChild;
-
-            if (i == set[0] || i == set[1] || i == set[2]) symbol.classList.add("expand");
-            else if (symbol) symbol.classList.add("retract");
-        }
     }
 
-    return { init, elements, placeSymbol, resetDisplay, applyAnimations };
-})(document);
+    return { init, elements, renderSymbol, resetDisplay, applyAnimations };
+})(document, AssetCreator);
 
-const Game = ((CellHandler, DisplayController, AssetCreator) => {
+const Game = ((ScoreKeeper, DisplayController) => {
     // Private Variables
-    const cellHandler = CellHandler;
+    const scoreKeeper = ScoreKeeper;
     const displayController = DisplayController;
-    const assetCreator = AssetCreator;
-    let playerOne = null;
-    let playerTwo = null;
-    let currentPlayer = undefined;
+    let currentPlayer = 1;
 
     // Initalizer
     const init = () => {
         displayController.init();
-
-        playerOne = PlayerFactory("Player One", assetCreator.createXSymbol);
-        playerTwo = PlayerFactory("Player Two", assetCreator.createOSymbol);
-        currentPlayer = playerOne;
-        
         bindUIElements();
     }
 
@@ -96,90 +105,45 @@ const Game = ((CellHandler, DisplayController, AssetCreator) => {
     const bindUIElements = () => {
         // use event propegation for putting symbols on cells
         displayController.elements.boardElement.addEventListener("click", (e) => { takeTurn(e) })
-        displayController.elements.playAgainBtn.addEventListener("click", setupNewGame);
     }
 
     const takeTurn = (e) => {
         // disable the clicked cell on the board
         if (e.target.tagName != "BUTTON" || e.target.disabled == true) return;
 
-        // place the symbol and change turns
-        displayController.placeSymbol(e.target, currentPlayer);
+        // place the symbol, check win, change turns
+        let row = e.target.dataset.row;
+        let col = e.target.dataset.col;
+        let idx = e.target.dataset.idx;
 
-        currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+        displayController.renderSymbol(idx, currentPlayer);
 
-        if (isWinningMove(e.target.style.order - 1, currentPlayer.symbol)) {
-            // do something..
+        if (isWinningMove(row, col)) {
+            scoreKeeper.incPlayerScore(currentPlayer);
+            setupNewGame();
         }
+
+        currentPlayer *= -1;
     }
 
-    const isWinningMove = (index, symbol) => {
-        cellHandler.updateCell(index, symbol);
+    const isWinningMove = (row, col) => {
+        scoreKeeper.updateBoardScores(row, col, currentPlayer);
 
-        let winningSet = undefined;
-        const cells = cellHandler.cellArray;
-
-        // check columns 1, 2, 3
-        if (index == 0 || index == 3 || index == 6) {
-            if (cells[0] == symbol && cells[3] == symbol && cells[6] == symbol) {
-                winningSet = [0, 3, 6];
+        for (let scores of scoreKeeper.getBoardScores()) {
+            for (let score of scores) {
+                if (Math.abs(score) == 3) return true;
             }
-        }
-        else if (index == 1 || index == 4 || index == 7) {
-            if (cells[1] == symbol && cells[4] == symbol && cells[7] == symbol) {
-                winningSet = [1, 4, 7];
-            }
-        }
-        else if (index == 2 || index == 5 || index == 8) {
-            if (cells[2] == symbol && cells[5] == symbol && cells[8] == symbol) {
-                winningSet = [2, 5, 8];
-            }
-        }
-
-        // check rows 1, 2, 3
-        if (index == 0 || index == 1 || index == 2) {
-            if (cells[0] == symbol && cells[1] == symbol && cells[2] == symbol) {
-                winningSet = [0, 1, 2];
-            }
-        }
-        else if (index == 3 || index == 4 || index == 5) {
-            if (cells[3] == symbol && cells[4] == symbol && cells[5] == symbol) {
-                winningSet = [3, 4, 5];
-            }
-        }
-        else if (index == 6 || index == 7 || index == 8) {
-            if (cells[6] == symbol && cells[7] == symbol && cells[8] == symbol) {
-                winningSet = [6, 7, 8];
-            }
-        }
-
-        // check diags L-to-R, R-to-L
-        if (index == 0 || index == 4 || index == 8) {
-            if (cells[0] == symbol && cells[4] == symbol && cells[8] == symbol) {
-                winningSet = [0, 4, 8];
-            }
-        }
-
-        else if (index == 2 || index == 4 || index == 6) {
-            if (cells[2] == symbol && cells[4] == symbol && cells[6] == symbol) {
-                winningSet = [2, 4, 6];
-            }
-        }
-
-        if (winningSet) {
-            displayController.applyAnimations(winningSet);
-            return true;
         }
         return false;
     }
 
     const setupNewGame = () => {
-        cellHandler.resetCellArray();
+        scoreKeeper.resetBoardScores();
         displayController.resetDisplay();
     }
 
     return { init };
 
-})(CellHandler, DisplayController, AssetCreator);
+})(ScoreKeeper, DisplayController);
 
 Game.init();
