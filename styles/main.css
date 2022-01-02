@@ -76,6 +76,7 @@ ul {
     gap: var(--board-border-size);
     grid-template: repeat(3, 1fr) / repeat(3, 1fr);
     height: min(70vmin, 500px);
+    position: relative;
 }
 
 .board__cell {
@@ -97,20 +98,43 @@ ul {
     width: 80%;
 }
 
+.board__line {
+    height: auto;
+    position: absolute;
+    width: 90%;
+}
+
+.board__line--row {
+    left: 15%;
+    top: calc(15% * var(--position-multiplier));
+}
+
+.board__line--col {
+    left: calc(15% * var(--position-multiplier));
+    transform: rotate(90deg);
+    top: 15%;
+}
+
+.board__line--diag {
+    transform: calc(rotate(45deg) * var(--position-multiplier));
+    top: 15%;
+    left: 15%;
+}
+
 .horizontal-list {
     display: flex;
     flex-direction: row;
     gap: 2rem;
 }
 
-.btn {
+/* .btn {
     border-radius: 1.5rem;
     height: min-content;
     padding: 20px;
     font-weight: bold;
     letter-spacing: .15rem;
     width: min-content;
-}
+} */
 
 /* -------------------- */
 /* Style                */
@@ -137,12 +161,12 @@ ul {
     list-style-type: none;
 }
 
-.btn--text-link {
+/* .btn__text-link {
     background-color: hsl( var(--accent-clr) );
     color: hsl( var(--secondary-clr) );
     font-size: 1.5rem;
     white-space: nowrap;
-}
+} */
 
 /* -------------------- */
 /* Animations           */
@@ -156,6 +180,7 @@ ul {
     animation: retract 1.5s ease-in-out var(--total-anim-duration) 1 normal forwards;
 }
 
+/* requires JS defined --shape-length and --delay=multiplier */
 .drawn {
     --piece-anim-duration: calc(var(--total-anim-duration) / var(--shape-pieces));
     stroke-dasharray: var(--shape-length);
