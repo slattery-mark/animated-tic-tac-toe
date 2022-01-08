@@ -10,6 +10,8 @@ const ScoreKeeper = (() => {
 
     // Public Functions
     const updateBoardScores = (row, col, currentPlayer) => {
+        row = parseInt(row);
+        col = parseInt(col);
         rows[row] += currentPlayer;
         cols[col] += currentPlayer;
         if (row === col) diags[0] += currentPlayer;

@@ -85,7 +85,7 @@ ul {
     align-items: center;
     justify-content: center;
     padding: 15%;
-    overflow: hidden;
+    position: relative;
 }
 
 .board__cell[disabled] {
@@ -105,20 +105,21 @@ ul {
 }
 
 .board__line--row {
-    left: 15%;
-    top: calc(15% * var(--position-multiplier));
+    top: calc(12.5% + (34.767% * (var(--position-multiplier) - 1)));
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .board__line--col {
-    left: calc(15% * var(--position-multiplier));
-    transform: rotate(90deg);
-    top: 15%;
+    left: calc(12.5% + (34.767% * (var(--position-multiplier) - 1)));
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .board__line--diag {
-    transform: calc(rotate(45deg) * var(--position-multiplier));
-    top: 15%;
-    left: 15%;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(90deg * (var(--position-multiplier) - 1)));
 }
 
 .horizontal-list {

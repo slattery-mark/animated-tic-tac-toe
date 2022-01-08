@@ -20,9 +20,9 @@ const AssetCreator = (() => {
         },
         line: {
             shapePieces: 1,
-            shapeLength: 480,
+            shapeLength: 500,
             delayMultipliers: {
-                pieceOne: 0
+                pieceOne: 1
             },
             color: undefined
         }
@@ -90,25 +90,45 @@ const AssetCreator = (() => {
         return oSymbol;
     }
 
-    const createLine = (winner, position) => {
+    const createLine = (winner, direction, position) => {
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-
-        svg.setAttribute("viewBox", "0 0 500 20");
+        
         svg.setAttribute("fill", "none");
+        svg.setAttribute("viewBox", "0 0 500 500");
         svg.style.setProperty("--shape-pieces", "1");
+        svg.style.setProperty("--position-multiplier", position);
+        svg.classList.add(`board__line--${direction}`);
 
-        line.setAttribute("x1", "10");
-        line.setAttribute("y1", "10");
-        line.setAttribute("x2", "490");
-        line.setAttribute("y2", "10");
-        line.setAttribute("stroke-width", "20");
+        switch (direction) {
+            case "row":
+                line.setAttribute("x1", "15");
+                line.setAttribute("y1", "15");
+                line.setAttribute("x2", "485");
+                line.setAttribute("y2", "15");
+                line.style.setProperty("--shape-length", settings.line.shapeLength);
+                break;
+            case "col":
+                line.setAttribute("x1", "15");
+                line.setAttribute("y1", "15");
+                line.setAttribute("x2", "15");
+                line.setAttribute("y2", "485");
+                line.style.setProperty("--shape-length", settings.line.shapeLength);
+                break;
+            case "diag":
+                line.setAttribute("x1", "15");
+                line.setAttribute("y1", "15");
+                line.setAttribute("x2", "485");
+                line.setAttribute("y2", "485");
+                line.style.setProperty("--shape-length", settings.line.shapeLength * 1.33);
+                break;
+        }
+
+        line.setAttribute("stroke-width", "30");
         line.setAttribute("stroke-linecap", "round");
         line.style.setProperty("--delay-multiplier", settings.line.delayMultipliers.pieceOne);
-        line.style.setProperty("--shape-length", settings.line.shapeLength);
-        line.style.setProperty("--position-multiplier", position);
 
-        (winner == "x") ? line.setAttribute("stroke", settings.x.color) : line.setAttribute("stroke", settings.o.color);
+        (winner == 1) ? line.setAttribute("stroke", settings.x.color) : line.setAttribute("stroke", settings.o.color);
 
         svg.appendChild(line);
 
