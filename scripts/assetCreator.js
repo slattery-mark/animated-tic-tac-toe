@@ -28,18 +28,30 @@ const AssetCreator = (() => {
         }
     };
 
+
+{/* <svg width="73" height="73" viewBox="0 0 73 73" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10" y1="62.8579" x2="62.8579" y2="10.0001" stroke="#EA526E" stroke-width="20" stroke-linecap="round"/>
+</svg>
+
+<svg width="73" height="73" viewBox="0 0 73 73" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line x1="10.1421" y1="10" x2="63" y2="62.8579" stroke="#EA526E" stroke-width="20" stroke-linecap="round"/>
+</svg> */}
+
+
+
+
     const createXSymbol = () => {
         let xSymbol = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let mainDiag = document.createElementNS("http://www.w3.org/2000/svg", 'line');
         let antiDiag = document.createElementNS("http://www.w3.org/2000/svg", 'line');
 
-        xSymbol.setAttribute("viewBox", "0 0 81 77");
+        xSymbol.setAttribute("viewBox", "0 0 73 73");
         xSymbol.setAttribute("fill", "none");
         xSymbol.style.setProperty("--shape-pieces", settings.x.shapePieces);
 
-        mainDiag.setAttribute("x1", "14.1421");
+        mainDiag.setAttribute("x1", "10");
         mainDiag.setAttribute("y1", "10");
-        mainDiag.setAttribute("x2", "67");
+        mainDiag.setAttribute("x2", "62.8579");
         mainDiag.setAttribute("y2", "62.8579");
         mainDiag.setAttribute("stroke", settings.x.color);
         mainDiag.setAttribute("stroke-width", "20");
@@ -47,10 +59,10 @@ const AssetCreator = (() => {
         mainDiag.style.setProperty("--delay-multiplier", settings.x.delayMultipliers.pieceOne);
         mainDiag.style.setProperty("--shape-length", settings.x.shapeLength);
 
-        antiDiag.setAttribute("x1", "14");
+        antiDiag.setAttribute("x1", "10");
         antiDiag.setAttribute("y1", "62.8579");
-        antiDiag.setAttribute("x2", "66.8579");
-        antiDiag.setAttribute("y2", "10.0001");
+        antiDiag.setAttribute("x2", "62.8579");
+        antiDiag.setAttribute("y2", "10");
         antiDiag.setAttribute("stroke", settings.x.color);
         antiDiag.setAttribute("stroke-width", "20");
         antiDiag.setAttribute("stroke-linecap", "round");
