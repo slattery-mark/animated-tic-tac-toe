@@ -7,6 +7,7 @@ const ScoreKeeper = (() => {
     let diags = [0, 0];
     let playerXScore = 0;
     let playerOScore = 0;
+    let tieGameCount = 0;
 
     // Public Functions
     const updateBoardScores = (row, col, currentPlayer) => {
@@ -28,9 +29,23 @@ const ScoreKeeper = (() => {
         return [rows, cols, diags];
     }
 
-    const incPlayerScore = (player) => {
-        (player == 1) ? playerXScore++ : playerOScore++;
+    const getMatchScores = () => {
+        return [playerXScore, playerOScore, tieGameCount];
     }
 
-    return { updateBoardScores, resetBoardScores, getBoardScores, incPlayerScore }
+    const incScore = (result) => {
+        switch (result) {
+            case -1:
+                playerOScore++;
+                break;
+            case 0:
+                tieGameCount++;
+                break;
+            case 1:
+                playerXScore++;
+                break;
+        }
+    }
+
+    return { updateBoardScores, resetBoardScores, getBoardScores, getMatchScores, incScore }
 })();

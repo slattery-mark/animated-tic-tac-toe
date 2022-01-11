@@ -10,6 +10,7 @@ const DisplayController = ((Document, AssetCreator) => {
         playAgainBtn: doc.querySelector(".play-again"),
         body: doc.querySelector("body")
     }
+    const animationDuration = parseInt(getComputedStyle(doc.documentElement).getPropertyValue('--total-anim-duration')) * 3 * 1000;
 
     // private functions
     const bindUIElements = (takeTurnFunc) => {
@@ -19,13 +20,14 @@ const DisplayController = ((Document, AssetCreator) => {
 
     // public functions
     const init = (takeTurnFunc) => {
-        // Create the board
+        // Generate the board/Cells
         let k = 0;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
 
                 let btn = doc.createElement("button");
-                btn.classList.add("board__cell")
+                btn.classList.add("board__cell");
+                btn.classList.add("l-flex-center");
                 btn.dataset.row = i;
                 btn.dataset.col = j;
                 btn.dataset.idx = k;
@@ -46,6 +48,10 @@ const DisplayController = ((Document, AssetCreator) => {
         elements.boardBtns[idx].appendChild(symbol);
     }
 
+    const disableBtns = () => {
+        for (let btn of elements.boardBtns) btn.disabled = true;
+    }
+
     const resetDisplay = () => {
         for (let btn of elements.boardBtns) {
             btn.textContent = "";
@@ -53,73 +59,29 @@ const DisplayController = ((Document, AssetCreator) => {
 
             // remove animations
             btn.classList.remove("contract");
+            btn.classList.remove("fade-out");
         }
+
+        doc.querySelector(".board__line").remove();
     }
 
-    const applyAnimations = (winningDirection, winner) => {
-        // winning direction:
-        // rows 1 2 3 = 0 1 2
-        // cols 1 2 3 = 3 4 5
-        // diags main anti = 6 7
-
-        let skipSymbols = undefined;
-        let direction = undefined;
-        let position = undefined;
-        switch (winningDirection) {
-            case 0:
-                skipSymbols = [0, 1, 2];
-                direction = "row";
-                position = 1;
-                break;
-            case 1:
-                skipSymbols = [3, 4, 5];
-                direction = "row";
-                position = 2;
-                break;
-            case 2:
-                skipSymbols = [6, 7, 8];
-                direction = "row";
-                position = 3;
-                break;
-            case 3:
-                skipSymbols = [0, 3, 6];
-                direction = "col";
-                position = 1;
-                break;
-            case 4:
-                skipSymbols = [1, 4, 7];
-                direction = "col";
-                position = 2;
-                break;
-            case 5:
-                skipSymbols = [2, 5, 8];
-                direction = "col";
-                position = 3;
-                break
-            case 6:
-                skipSymbols = [0, 4, 8];
-                direction = "diag";
-                position = 1;
-                break
-            case 7:
-                skipSymbols = [2, 4, 6];
-                direction = "diag";
-                position = 2;
-                break
-        }
+    const applyAnimations = (winningMove, winner) => {
 
         // shrink non-victory symbols
-        elements.boardBtns.forEach((btn, idx) => {
-            if (!skipSymbols.includes(idx)) {
-                if (btn.children[0]) btn.children[0].classList.add("retract");
+        elements.boardBtns.forEach((btn, i) => {
+            if (btn.children[0]) {
+                let symbol = btn.children[0];
+                if (!winningMove.set.includes(i)) symbol.classList.add("retract");
+                symbol.classList.add("fade-out");
             }
         })
 
-        let line = assetCreator.createLine(winner, direction, position);
+        let line = assetCreator.createLine(winner, winningMove.direction, winningMove.position);
+        line.classList.add("fade-out");
         elements.boardElement.appendChild(line);
     }
 
-    return { init, renderSymbol, resetDisplay, applyAnimations };
+    return { init, renderSymbol, resetDisplay, applyAnimations, animationDuration, disableBtns };
 })(document, AssetCreator);
 
 const Game = ((ScoreKeeper, DisplayController) => {
@@ -127,11 +89,19 @@ const Game = ((ScoreKeeper, DisplayController) => {
     const scoreKeeper = ScoreKeeper;
     const displayController = DisplayController;
     let currentPlayer = 1;
+    let turnCounter = 0;
+    let winningMove = {
+        set: [-1, -1, -1],
+        direction: undefined,
+        position: undefined
+    };
 
     // Private Functions
     const takeTurn = (e) => {
         // disable the clicked cell on the board
         if (e.target.tagName != "BUTTON" || e.target.disabled == true) return;
+
+        turnCounter++;
 
         // place the symbol, check win, change turns
         let row = e.target.dataset.row;
@@ -141,9 +111,20 @@ const Game = ((ScoreKeeper, DisplayController) => {
         displayController.renderSymbol(idx, currentPlayer);
 
         if (isWinningMove(row, col)) {
-            scoreKeeper.incPlayerScore(currentPlayer);
-            // displayController.applyAnimations();
-            // setupNewGame();
+            scoreKeeper.incScore(currentPlayer);
+
+            // disable the board until animations complete
+            new Promise((resolve, reject) => {
+                displayController.disableBtns();
+                displayController.applyAnimations(winningMove, currentPlayer);
+                setTimeout(resolve, (displayController.animationDuration));
+            }).then(setupNewGame);
+        }
+
+        else if (turnCounter == 9) {
+            scoreKeeper.incScore(0);
+            setupNewGame();
+            // tie game
         }
 
         // change turns
@@ -153,24 +134,40 @@ const Game = ((ScoreKeeper, DisplayController) => {
     const isWinningMove = (row, col) => {
         scoreKeeper.updateBoardScores(row, col, currentPlayer);
 
-        scoreKeeper.getBoardScores().forEach((scores, i) => {
-            scores.forEach((score, j) => {
-                let absScore = Math.abs(score);
-                if (Math.abs(absScore == 3)) {
+        const boardScores = scoreKeeper.getBoardScores();
+        const rows = boardScores[0];
+        const cols = boardScores[1];
+        const diags = boardScores[2];
 
-                    // should find a way outside this function to apply the animations in a way
-                    // that doesn't require re-determining a victory
-                    let winningDirection = (i * 3) + j;
-                    displayController.applyAnimations(winningDirection, currentPlayer);
+        for (let i = 0; i < rows.length; i++) {
+            if (Math.abs(rows[i]) == 3) {
+                winningMove.set = [i * 3, i * 3 + 1, i * 3 + 2];
+                winningMove.direction = "row";
+                winningMove.position = i + 1;
+                return true;
+            }
 
-                    return true;
-                }
-            })
-        })
+            if (Math.abs(cols[i]) == 3) {
+                winningMove.set = [i, i + 3, i + 6];
+                winningMove.direction = "col";
+                winningMove.position = i + 1;
+                return true;
+            }
+
+
+            if (i < 2 && Math.abs(diags[i]) == 3) {
+                winningMove.set = (i == 0) ? [0, 4, 8] : [2, 4, 6];
+                winningMove.direction = "diag";
+                winningMove.position = i + 1;
+                return true;
+            }
+        }
+
         return false;
     }
 
     const setupNewGame = () => {
+        turnCounter = 0;
         scoreKeeper.resetBoardScores();
         displayController.resetDisplay();
     }
@@ -184,4 +181,5 @@ const Game = ((ScoreKeeper, DisplayController) => {
 
 })(ScoreKeeper, DisplayController);
 
+// "main"
 Game.init();
