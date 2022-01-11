@@ -1,89 +1,5 @@
 "use strict";
 
-const DisplayController = ((Document, AssetCreator) => {
-    // private variables
-    const doc = Document;
-    const assetCreator = AssetCreator;
-    const elements = {
-        boardBtns: [],
-        boardElement: doc.querySelector(".board"),
-        playAgainBtn: doc.querySelector(".play-again"),
-        body: doc.querySelector("body")
-    }
-    const animationDuration = parseInt(getComputedStyle(doc.documentElement).getPropertyValue('--total-anim-duration')) * 3 * 1000;
-
-    // private functions
-    const bindUIElements = (takeTurnFunc) => {
-        // use event propegation for putting symbols on cells
-        elements.boardElement.addEventListener("click", takeTurnFunc);
-    }
-
-    // public functions
-    const init = (takeTurnFunc) => {
-        // Generate the board/Cells
-        let k = 0;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-
-                let btn = doc.createElement("button");
-                btn.classList.add("board__cell");
-                btn.classList.add("l-flex-center");
-                btn.dataset.row = i;
-                btn.dataset.col = j;
-                btn.dataset.idx = k;
-
-                k++;
-
-                elements.boardBtns.push(btn);
-                elements.boardElement.appendChild(btn);
-            }
-        }
-
-        bindUIElements(takeTurnFunc);
-    }
-
-    const renderSymbol = (idx, currentPlayer) => {
-        elements.boardBtns[idx].disabled = true;
-        let symbol = (currentPlayer == 1) ? assetCreator.createXSymbol() : assetCreator.createOSymbol();
-        elements.boardBtns[idx].appendChild(symbol);
-    }
-
-    const disableBtns = () => {
-        for (let btn of elements.boardBtns) btn.disabled = true;
-    }
-
-    const resetDisplay = () => {
-        for (let btn of elements.boardBtns) {
-            btn.textContent = "";
-            btn.disabled = false;
-
-            // remove animations
-            btn.classList.remove("contract");
-            btn.classList.remove("fade-out");
-        }
-
-        doc.querySelector(".board__line").remove();
-    }
-
-    const applyAnimations = (winningMove, winner) => {
-
-        // shrink non-victory symbols
-        elements.boardBtns.forEach((btn, i) => {
-            if (btn.children[0]) {
-                let symbol = btn.children[0];
-                if (!winningMove.set.includes(i)) symbol.classList.add("retract");
-                symbol.classList.add("fade-out");
-            }
-        })
-
-        let line = assetCreator.createLine(winner, winningMove.direction, winningMove.position);
-        line.classList.add("fade-out");
-        elements.boardElement.appendChild(line);
-    }
-
-    return { init, renderSymbol, resetDisplay, applyAnimations, animationDuration, disableBtns };
-})(document, AssetCreator);
-
 const Game = ((ScoreKeeper, DisplayController) => {
     // Private Variables
     const scoreKeeper = ScoreKeeper;
@@ -101,15 +17,14 @@ const Game = ((ScoreKeeper, DisplayController) => {
         // disable the clicked cell on the board
         if (e.target.tagName != "BUTTON" || e.target.disabled == true) return;
 
-        turnCounter++;
-
-        // place the symbol, check win, change turns
         let row = e.target.dataset.row;
         let col = e.target.dataset.col;
         let idx = e.target.dataset.idx;
+        turnCounter++;
 
         displayController.renderSymbol(idx, currentPlayer);
 
+        // check for victory or tie game
         if (isWinningMove(row, col)) {
             scoreKeeper.incScore(currentPlayer);
 
@@ -120,11 +35,9 @@ const Game = ((ScoreKeeper, DisplayController) => {
                 setTimeout(resolve, (displayController.animationDuration));
             }).then(setupNewGame);
         }
-
         else if (turnCounter == 9) {
             scoreKeeper.incScore(0);
             setupNewGame();
-            // tie game
         }
 
         // change turns
@@ -146,16 +59,13 @@ const Game = ((ScoreKeeper, DisplayController) => {
                 winningMove.position = i + 1;
                 return true;
             }
-
-            if (Math.abs(cols[i]) == 3) {
+            else if (Math.abs(cols[i]) == 3) {
                 winningMove.set = [i, i + 3, i + 6];
                 winningMove.direction = "col";
                 winningMove.position = i + 1;
                 return true;
             }
-
-
-            if (i < 2 && Math.abs(diags[i]) == 3) {
+            else if (i < 2 && Math.abs(diags[i]) == 3) {
                 winningMove.set = (i == 0) ? [0, 4, 8] : [2, 4, 6];
                 winningMove.direction = "diag";
                 winningMove.position = i + 1;
