@@ -11,11 +11,6 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
         integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow&display=swap" rel="stylesheet">
-
     <!-- Custom Styles -->
     <link rel="stylesheet" href="/styles/main.css" type="text/css">
 
@@ -27,10 +22,27 @@
 </head>
 
 <body class="primary-theme l-two-row-grid">
-    <main class="l-flex-center l-two-row-grid">
+    <main class="l-flex-center">
         <div class="board"></div>
-        <!-- <button class="play-again btn btn__text-link">Play Again</button> -->
-        <section>
+
+        <section class="scoreboard">
+
+            <svg viewBox="0 0 73 73" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="10" y1="10" x2="62.8579" y2="62.8579" stroke="black" stroke-width="20"
+                    stroke-linecap="round" />
+                <line x1="10" y1="62.8579" x2="62.8579" y2="10" stroke="black" stroke-width="20"
+                    stroke-linecap="round" />
+            </svg>
+            <span>Tie Games</span>
+            <svg viewBox="0 0 73 73" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M36.5 10C21.8645 10 10 21.8644 10 36.5C10 51.1355 21.8645 63 36.5 63C51.1355 63 63 51.1355 63 36.5C63 21.8644 51.1355 10 36.5 10Z"
+                    stroke="black" stroke-width="20" />
+            </svg>
+            <span class="score" id="x-score"></span>
+            <span class="score" id="tie-count"></span>
+            <span class="score" id="o-score"></span>
+
 
         </section>
     </main>
@@ -38,8 +50,10 @@
 
     <footer class="l-flex-center banner">
         <ul class="horizontal-list social-links">
-            <li><a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a></li>
-            <li><a href="#" class="social-link"><i class="fab fa-github"></i></a></li>
+            <li><a href="https://www.linkedin.com/in/slattery-mark/" class="social-link" target="_blank"><i
+                        class="fab fa-linkedin-in"></i></a></li>
+            <li><a href="https://github.com/slattery-mark" class="social-link" target="_blank"><i
+                        class="fab fa-github"></i></a></li>
             <li><a href="#" class="social-link"><i class="fas fa-external-link-alt"></a></i></li>
         </ul>
     </footer>
