@@ -2,7 +2,7 @@
 /* Properties/Resets    */
 /* -------------------- */
 :root {
-    --ff-site: "Barlow", sans-serif;
+    --ff-site: Arial, sans-serif;
 
     --fs-board: clamp(1rem, 11vmin + 1rem, 5.5rem);
     --fs-banner: 1.25rem;
@@ -49,10 +49,6 @@ ul {
     padding: 0;
 }
 
-/* a {
-    padding: 1rem;
-} */
-
 /* -------------------- */
 /* Layout               */
 /* -------------------- */
@@ -90,7 +86,7 @@ ul {
     display: grid;
     gap: var(--board-border-size);
     grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-    height: min(70vmin, 500px);
+    height: min(50vmin, 500px);
     position: relative;
 }
 
@@ -141,14 +137,24 @@ ul {
     transform: translateX(-50%) translateY(-50%) rotate(calc(90deg * (var(--position-multiplier) - 1)));
 }
 
-/* .btn {
-    border-radius: 1.5rem;
-    height: min-content;
-    padding: 20px;
-    font-weight: bold;
-    letter-spacing: .15rem;
-    width: min-content;
-} */
+.scoreboard {
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    margin-top: 30px;
+    text-align: center;
+    width: min(60vmin, 500px);
+    height: min(20vmin, 200px);
+}
+
+.scoreboard > * {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75%;
+    height: 75%;
+}
 
 /* -------------------- */
 /* State                */
@@ -191,13 +197,6 @@ ul {
     transform: scale(1.2);
 }
 
-/* .btn__text-link {
-    background-color: hsl( var(--accent-clr) );
-    color: hsl( var(--secondary-clr) );
-    font-size: 1.5rem;
-    white-space: nowrap;
-} */
-
 /* -------------------- */
 /* Animations           */
 /* -------------------- */
@@ -223,7 +222,6 @@ ul {
 .fade-out {
     animation: fade-out .75s linear calc( var(--total-anim-duration) * 2 ) 1 normal forwards;
 }
-
 
 @keyframes fade-out {
     from {
