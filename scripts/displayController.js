@@ -8,7 +8,12 @@ const DisplayController = ((Document, AssetCreator) => {
         boardBtns: [],
         boardElement: doc.querySelector(".board"),
         playAgainBtn: doc.querySelector(".play-again"),
-        body: doc.querySelector("body")
+        body: doc.querySelector("body"),
+        scores: {
+            xScore: doc.getElementById("x-score"),
+            oScore: doc.getElementById("o-score"),
+            tieCount: doc.getElementById("tie-count")
+        }
     }
     const animationDuration = parseInt(getComputedStyle(doc.documentElement).getPropertyValue('--total-anim-duration')) * 1000;
 
@@ -40,6 +45,10 @@ const DisplayController = ((Document, AssetCreator) => {
         }
 
         bindUIElements(takeTurnFunc);
+
+        elements.scores.xScore.textContent = 0;
+        elements.scores.oScore.textContent = 0;
+        elements.scores.tieCount.textContent = 0;
     }
 
     const renderSymbol = (idx, currentPlayer) => {
@@ -71,7 +80,7 @@ const DisplayController = ((Document, AssetCreator) => {
         for (let btn of elements.boardBtns) btn.disabled = true;
     }
 
-    const resetDisplay = () => {
+    const resetBoard = () => {
         for (let btn of elements.boardBtns) {
             btn.textContent = "";
             btn.disabled = false;
@@ -84,31 +93,26 @@ const DisplayController = ((Document, AssetCreator) => {
         doc.querySelector(".board__line").remove();
     }
 
+    const updateMatchScores = (scores) => {
+        elements.scores.xScore.textContent = scores[0];
+        elements.scores.oScore.textContent = scores[1];
+        elements.scores.tieCount.textContent = scores[2];
+    }
+
     const applyAnimations = (winningMove, winner) => {
         // shrink non-victory symbols
-        for (let i = 0; i < elements.boardBtns.length; i++) {
-            let btn = elements.boardBtns[i];
+        elements.boardBtns.forEach((btn, i) => {
             if (btn.children[0]) {
                 let symbol = btn.children[0];
-                if (!winningMove.set.includes(i)) {
-                    symbol.classList.add("shrink");
-                }
+                if (!winningMove.set.includes(i)) symbol.classList.add("shrink");
                 symbol.classList.add("fade-out");
             }
-        }
-        // elements.boardBtns.forEach((btn, i) => {
-        //     if (btn.children[0]) {
-        //         let symbol = btn.children[0];
-        //         symbol.classList.add("shrink");
-        //         if (!winningMove.set.includes(i)) symbol.classList.add("shrink");
-        //         symbol.classList.add("fade-out");
-        //     }
-        // })
+        })
 
         let line = assetCreator.createLine(winner, winningMove.direction, winningMove.position);
         line.classList.add("fade-out");
         elements.boardElement.appendChild(line);
     }
 
-    return { init, renderSymbol, switchAssets, resetDisplay, applyAnimations, animationDuration, disableBtns };
+    return { init, renderSymbol, switchAssets, resetBoard, updateMatchScores, applyAnimations, animationDuration, disableBtns };
 })(document, AssetCreator);
