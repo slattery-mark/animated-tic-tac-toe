@@ -28,6 +28,7 @@ const Game = ((ScoreKeeper, DisplayController) => {
         // check for victory or tie game
         if (isWinningMove(row, col)) {
             scoreKeeper.incScore(currentPlayer);
+            displayController.updateMatchScores(scoreKeeper.getMatchScores());
 
             // disable the board until animations complete
             new Promise(resolve => {
@@ -80,7 +81,7 @@ const Game = ((ScoreKeeper, DisplayController) => {
     const setupNewGame = () => {
         turnCounter = 0;
         scoreKeeper.resetBoardScores();
-        displayController.resetDisplay();
+        displayController.resetBoard();
     }
 
     // public functions
