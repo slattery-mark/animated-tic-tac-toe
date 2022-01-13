@@ -61,8 +61,8 @@ const AssetCreator = (() => {
         xSymbol.appendChild(antiDiag);
 
         xSymbol.classList.add("board__symbol");
-        mainDiag.classList.add("drawn");
-        antiDiag.classList.add("drawn");
+        mainDiag.classList.add("draw");
+        antiDiag.classList.add("draw");
 
         return xSymbol;
     }
@@ -85,7 +85,7 @@ const AssetCreator = (() => {
         oSymbol.appendChild(path);
 
         oSymbol.classList.add("board__symbol");
-        path.classList.add("drawn");
+        path.classList.add("draw");
 
         return oSymbol;
     }
@@ -133,7 +133,7 @@ const AssetCreator = (() => {
         svg.appendChild(line);
 
         svg.classList.add("board__line");
-        line.classList.add("drawn");
+        line.classList.add("draw");
 
         return svg;
     }
