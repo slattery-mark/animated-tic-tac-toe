@@ -10,7 +10,7 @@ const DisplayController = ((Document, AssetCreator) => {
         playAgainBtn: doc.querySelector(".play-again"),
         body: doc.querySelector("body")
     }
-    const animationDuration = parseInt(getComputedStyle(doc.documentElement).getPropertyValue('--total-anim-duration')) * 3 * 1000;
+    const animationDuration = parseInt(getComputedStyle(doc.documentElement).getPropertyValue('--total-anim-duration')) * 1000;
 
     // private functions
     const bindUIElements = (takeTurnFunc) => {
@@ -48,6 +48,25 @@ const DisplayController = ((Document, AssetCreator) => {
         elements.boardBtns[idx].appendChild(symbol);
     }
 
+    const switchAssets = (idx, currentPlayer) => {
+        // place current "hover symbol" as background image of btn, then change "hover symbol" to match next player's symbol
+        if (currentPlayer === 1) {
+            elements.boardBtns[idx].style.backgroundImage = "url('/assets/x-symbol.svg')";
+            doc.body.style.setProperty("--current-symbol", "url('/assets/o-symbol.svg')");
+        }
+        else {
+            elements.boardBtns[idx].style.backgroundImage = "url('/assets/o-symbol.svg')";
+            doc.body.style.setProperty("--current-symbol", "url('/assets/x-symbol.svg')");
+        }
+
+        // remove background image after animations
+        new Promise(resolve => {
+            setTimeout(resolve, (animationDuration));
+        }).then(() => {
+            elements.boardBtns[idx].style.removeProperty("background-image");
+        });
+    }
+
     const disableBtns = () => {
         for (let btn of elements.boardBtns) btn.disabled = true;
     }
@@ -58,7 +77,7 @@ const DisplayController = ((Document, AssetCreator) => {
             btn.disabled = false;
 
             // remove animations
-            btn.classList.remove("contract");
+            btn.classList.remove("shrink");
             btn.classList.remove("fade-out");
         }
 
@@ -66,20 +85,30 @@ const DisplayController = ((Document, AssetCreator) => {
     }
 
     const applyAnimations = (winningMove, winner) => {
-
         // shrink non-victory symbols
-        elements.boardBtns.forEach((btn, i) => {
+        for (let i = 0; i < elements.boardBtns.length; i++) {
+            let btn = elements.boardBtns[i];
             if (btn.children[0]) {
                 let symbol = btn.children[0];
-                if (!winningMove.set.includes(i)) symbol.classList.add("retract");
+                if (!winningMove.set.includes(i)) {
+                    symbol.classList.add("shrink");
+                }
                 symbol.classList.add("fade-out");
             }
-        })
+        }
+        // elements.boardBtns.forEach((btn, i) => {
+        //     if (btn.children[0]) {
+        //         let symbol = btn.children[0];
+        //         symbol.classList.add("shrink");
+        //         if (!winningMove.set.includes(i)) symbol.classList.add("shrink");
+        //         symbol.classList.add("fade-out");
+        //     }
+        // })
 
         let line = assetCreator.createLine(winner, winningMove.direction, winningMove.position);
         line.classList.add("fade-out");
         elements.boardElement.appendChild(line);
     }
 
-    return { init, renderSymbol, resetDisplay, applyAnimations, animationDuration, disableBtns };
+    return { init, renderSymbol, switchAssets, resetDisplay, applyAnimations, animationDuration, disableBtns };
 })(document, AssetCreator);

@@ -16,6 +16,8 @@
     --board-border: var(--board-border-size) solid hsl(var(--primary-clr) );
 
     --total-anim-duration: 1s;
+
+    --current-symbol: url("/assets/x-symbol.svg");
 }
 
 /* Remove animations for people who've turned them off (accessibility) */
@@ -93,9 +95,16 @@ ul {
 }
 
 .board__cell {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 55%;
     cursor: pointer;
     padding: 15%;
     position: relative;
+}
+
+.board__cell:hover {
+    background-image: var(--current-symbol);
 }
 
 .board__cell[disabled] {
@@ -130,10 +139,6 @@ ul {
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%) rotate(calc(90deg * (var(--position-multiplier) - 1)));
-}
-
-.social-links {
-    
 }
 
 /* .btn {
@@ -197,16 +202,14 @@ ul {
 /* Animations           */
 /* -------------------- */
 
-.expand {
-    animation: expand var(--total-anim-duration) ease-in-out var(--total-anim-duration) infinite normal;
-}
-
-.retract {
-    animation: retract var(--total-anim-duration) ease-in-out var(--total-anim-duration) 1 normal forwards;
+.shrink {
+    transform: scale(.75);
+    transition: var(--total-anim-duration);
+    transition-delay: calc(var(--total-anim-duration) / 2);
 }
 
 /* requires JS defined --shape-length and --delay=multiplier */
-.drawn {
+.draw {
     --piece-anim-duration: calc(var(--total-anim-duration) / var(--shape-pieces));
     stroke-dasharray: var(--shape-length);
     stroke-dashoffset: var(--shape-length);
@@ -229,26 +232,6 @@ ul {
 
     to {
         opacity: 0;
-    }
-}
-
-@keyframes expand {
-    0% {
-        transform: scale(1);
-    }
-    
-    50% {
-        transform: scale(1.25);
-    }
-}
-
-@keyframes retract {
-    0% {
-        transform: scale(1);
-    }
-    
-    100% {
-        transform: scale(.75);
     }
 }
 

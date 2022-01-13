@@ -23,16 +23,17 @@ const Game = ((ScoreKeeper, DisplayController) => {
         turnCounter++;
 
         displayController.renderSymbol(idx, currentPlayer);
+        displayController.switchAssets(idx, currentPlayer);
 
         // check for victory or tie game
         if (isWinningMove(row, col)) {
             scoreKeeper.incScore(currentPlayer);
 
             // disable the board until animations complete
-            new Promise((resolve, reject) => {
+            new Promise(resolve => {
                 displayController.disableBtns();
                 displayController.applyAnimations(winningMove, currentPlayer);
-                setTimeout(resolve, (displayController.animationDuration));
+                setTimeout(resolve, (displayController.animationDuration * 3));
             }).then(setupNewGame);
         }
         else if (turnCounter == 9) {
