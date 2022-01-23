@@ -60,12 +60,12 @@ const DisplayController = ((Document, AssetCreator) => {
     const switchAssets = (idx, currentPlayer) => {
         // place current "hover symbol" as background image of btn, then change "hover symbol" to match next player's symbol
         if (currentPlayer === 1) {
-            elements.boardBtns[idx].style.backgroundImage = "url('/assets/x-symbol.svg')";
-            doc.body.style.setProperty("--current-symbol", "url('/assets/o-symbol.svg')");
+            elements.boardBtns[idx].style.backgroundImage = "url('assets/x-symbol.svg')";
+            doc.body.style.setProperty("--current-symbol", "url('assets/o-symbol.svg')");
         }
         else {
-            elements.boardBtns[idx].style.backgroundImage = "url('/assets/o-symbol.svg')";
-            doc.body.style.setProperty("--current-symbol", "url('/assets/x-symbol.svg')");
+            elements.boardBtns[idx].style.backgroundImage = "url('assets/o-symbol.svg')";
+            doc.body.style.setProperty("--current-symbol", "url('assets/x-symbol.svg')");
         }
 
         // remove background image after animations
