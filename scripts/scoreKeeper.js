@@ -1,15 +1,27 @@
 "use strict";
 
 const ScoreKeeper = (() => {
-    // Private Variables
+    /* -------------------- */
+    /*   PRIVATE VARIABLES  */
+    /* -------------------- */
+
     let rows = [0, 0, 0];
     let cols = [0, 0, 0];
     let diags = [0, 0];
     let playerXScore = 0;
     let playerOScore = 0;
-    let tieGameCount = 0;
 
-    // Public Functions
+    /* -------------------- */
+    /*   PUBLIC FUNCTIONS   */
+    /* -------------------- */
+    //#region 
+
+    /**
+     * Updates the board score based on the clicked cell
+     * @param {Number} row - the row of the clicked cell
+     * @param {Number} col - the column of the clicked cell
+     * @param {Number} currentPlayer - X = 1, O = -1
+     */
     const updateBoardScores = (row, col, currentPlayer) => {
         row = parseInt(row);
         col = parseInt(col);
@@ -30,22 +42,14 @@ const ScoreKeeper = (() => {
     }
 
     const getMatchScores = () => {
-        return [playerXScore, playerOScore, tieGameCount];
+        return [playerXScore, playerOScore];
     }
 
     const incScore = (result) => {
-        switch (result) {
-            case -1:
-                playerOScore++;
-                break;
-            case 0:
-                tieGameCount++;
-                break;
-            case 1:
-                playerXScore++;
-                break;
-        }
+        if (result === 1) playerXScore++;
+        else playerOScore++;
     }
 
+    //#endregion
     return { updateBoardScores, resetBoardScores, getBoardScores, getMatchScores, incScore }
 })();

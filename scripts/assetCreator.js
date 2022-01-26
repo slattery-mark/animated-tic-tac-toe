@@ -1,5 +1,10 @@
 "use strict";
 const AssetCreator = (() => {
+    /* -------------------- */
+    /*   PRIVATE VARIABLES  */
+    /* -------------------- */
+    //#region
+
     const settings = {
         x: {
             shapePieces: 2,
@@ -28,6 +33,16 @@ const AssetCreator = (() => {
         }
     };
 
+    //#endregion
+    /* -------------------- */
+    /*   PUBLIC FUNCTIONS   */
+    /* -------------------- */
+    //#region 
+
+    /**
+     * Creates an SVG of an X symbol
+     * @returns an SVG of an X symbol
+     */
     const createXSymbol = () => {
         let xSymbol = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let mainDiag = document.createElementNS("http://www.w3.org/2000/svg", 'line');
@@ -67,6 +82,10 @@ const AssetCreator = (() => {
         return xSymbol;
     }
 
+    /**
+     * Creates an svg of an O symbol
+     * @returns an svg of an O symbol
+     */
     const createOSymbol = () => {
         let oSymbol = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -90,6 +109,13 @@ const AssetCreator = (() => {
         return oSymbol;
     }
 
+    /**
+     * Creates an svg of a line
+     * @param {Number} winner - X = 1 (red), O = -1 (blue)
+     * @param {String} direction - "row", "col", or "diag" depending on where the final move was
+     * @param {Number} position - the position of the direction where the line should be placed e.g., "row 1", "col 3" etc.
+     * @returns an svg of a line
+     */
     const createLine = (winner, direction, position) => {
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         let line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
@@ -138,5 +164,6 @@ const AssetCreator = (() => {
         return svg;
     }
 
+    //#endregion
     return ({ createXSymbol, createOSymbol, createLine });
 })();
