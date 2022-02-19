@@ -99,8 +99,10 @@ ul {
     position: relative;
 }
 
-.board__cell:hover {
-    background-image: var(--current-symbol);
+@media (hover: hover) {
+    .board__cell:hover {
+        background-image: var(--current-symbol);
+    }
 }
 
 .board__cell[disabled] {
@@ -192,9 +194,11 @@ ul {
     transition: .5s;
 }
 
-.social-link > *:hover {
-    color: hsl(var(--secondary-clr) );
-    transform: scale(1.2);
+@media (hover: hover) {
+    .social-link > *:hover {
+        color: hsl(var(--secondary-clr) );
+        transform: scale(1.2);
+    }
 }
 
 /* -------------------- */
