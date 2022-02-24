@@ -12,6 +12,7 @@ const DisplayController = ((Document, AssetCreator) => {
         boardElement: doc.querySelector(".board"),
         playAgainBtn: doc.querySelector(".play-again"),
         body: doc.querySelector("body"),
+        scoreboard: doc.getElementById("scoreboard"),
         scores: {
             xScore: doc.getElementById("x-score"),
             oScore: doc.getElementById("o-score"),
@@ -62,6 +63,9 @@ const DisplayController = ((Document, AssetCreator) => {
 
         elements.scores.xScore.textContent = 0;
         elements.scores.oScore.textContent = 0;
+        elements.scoreboard.prepend(assetCreator.createOSymbol());
+        elements.scoreboard.prepend(assetCreator.createXSymbol());
+
     }
 
     /**
