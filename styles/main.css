@@ -195,9 +195,16 @@ ul {
 }
 
 #x-score, #o-score {
-    color: hsl( var(--secondary-clr) );
     font-weight: bolder;
-    font-size: larger;
+    font-size: 2rem;
+}
+
+#x-score {
+    color: #EA526E;
+}
+
+#o-score {
+    color: #3AA6F1;
 }
 
 @media (hover: hover) {
