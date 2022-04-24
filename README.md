@@ -1,2 +1,1 @@
-# tic-tac-toe
-WIP
+https://slattery-mark.github.io/
